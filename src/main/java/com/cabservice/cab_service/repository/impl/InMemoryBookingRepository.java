@@ -13,10 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class InMemoryBookingRepository implements BookingRepository {
     private final Map<Long, Booking> bookings = new ConcurrentHashMap<>();
-
     @Override
     public void save(Booking booking) {
-        bookings.put(booking.getBookingId(), booking);
+        if(booking.getBookingId() == null) {
+            Long newId = (long) bookings.size() + 1;
+            booking.setBookingId(newId);
+        }
+        bookings.put(booking.getBookingId(),booking);
     }
 
     @Override

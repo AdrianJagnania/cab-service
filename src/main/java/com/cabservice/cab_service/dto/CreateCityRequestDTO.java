@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class CreateCityRequestDTO {
-    private String cityId;
+    private String name;
 }

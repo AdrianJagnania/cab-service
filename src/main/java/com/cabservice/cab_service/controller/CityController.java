@@ -19,7 +19,7 @@ public class CityController {
     // POST /cities → Create a city
     @PostMapping("/create")
     public ResponseEntity<String> createCity(@RequestBody CreateCityRequestDTO request) {
-        cityService.createCity(request.getCityId());
+        cityService.createCity(request.getName());
         return ResponseEntity.ok("City created successfully");
     }
 

@@ -18,12 +18,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public City createCity(Long cityId) {
-        if (cityRepository.findByCityId(cityId).isPresent()) {
-            logger.info("city id exists: " + cityId);
+    public City createCity(String cityName) {
+        if (cityRepository.findByCityName(cityName).isPresent()) {
+            logger.info("city exists: " + cityName);
             throw new IllegalArgumentException("City already exists");
         }
-        City city = new City(cityId);
+        City city = new City(cityName);
         cityRepository.save(city);
         return city;
     }

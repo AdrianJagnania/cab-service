@@ -15,6 +15,10 @@ public class InMemoryCabRepository implements CabRepository {
     private final Map<Long, Cab> cabStore = new ConcurrentHashMap<>();
     @Override
     public void save(Cab cab) {
+        if(cab.getCabId() == null) {
+            Long newId = (long) cabStore.size() + 1;
+            cab.setCabId(newId);
+        }
         cabStore.put(cab.getCabId(), cab);
     }
 

@@ -16,7 +16,11 @@ public class InMemoryCityRepository implements CityRepository {
 
     @Override
     public void save(City city) {
-        cityStore.put(city.getCityId(), city);
+        if(city.getCityId() == null) {
+            Long newId = (long) cityStore.size() + 1;
+            city.setCityId(newId);
+        }
+        cityStore.put(city.getCityId(),city);
     }
 
     @Override
