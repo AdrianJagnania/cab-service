@@ -4,6 +4,7 @@ import com.cabservice.cab_service.BookingCompletedEvent;
 import com.cabservice.cab_service.BookingCreatedEvent;
 import com.cabservice.cab_service.CabStateChangedEvent;
 import com.cabservice.cab_service.DomainEventPublisher;
+import com.cabservice.cab_service.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Booking;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.enums.BookingState;
@@ -12,7 +13,6 @@ import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
 import com.cabservice.cab_service.service.BookingService;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -43,6 +43,9 @@ public class BookingServiceImpl implements BookingService{
         List<Cab> eligibleCabs = cabRepository.findByStateAndCityId(CabState.IDLE,sourceCityId);
 
         logger.info("eligible cabs: "+ eligibleCabs);
+        if (eligibleCabs == null || eligibleCabs.isEmpty()) {
+            throw new NoCabAvailableException("No cab available");
+        }
         Cab assignedCab = strategy.assignCab(eligibleCabs);
 
         Instant now = Instant.now();

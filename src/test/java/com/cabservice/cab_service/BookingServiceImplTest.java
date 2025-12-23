@@ -1,6 +1,7 @@
 package com.cabservice.cab_service;
 
 import com.cabservice.cab_service.DomainEventPublisher;
+import com.cabservice.cab_service.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Booking;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.enums.BookingState;
@@ -91,7 +92,7 @@ class BookingServiceImplTest {
         when(cabRepository.findByStateAndCityId(CabState.IDLE, sourceCityId))
                 .thenReturn(List.of());
 
-        assertThrows(RuntimeException.class,
+        assertThrows(NoCabAvailableException.class,
                 () -> bookingService.bookCab(sourceCityId, 20L));
     }
 
@@ -100,9 +101,8 @@ class BookingServiceImplTest {
         Long bookingId = 100L;
         Long cabId = 1L;
 
-        Booking booking = new Booking(cabId, 10L, 20L);
+        Booking booking = Booking.createOngoing(cabId, 10L, 20L);
         booking.setBookingId(bookingId);
-        booking.setState(BookingState.ONGOING);
 
         Cab cab = new Cab();
         cab.setCabId(cabId);
