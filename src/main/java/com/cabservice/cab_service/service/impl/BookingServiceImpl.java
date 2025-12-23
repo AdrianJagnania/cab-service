@@ -6,6 +6,7 @@ import com.cabservice.cab_service.enums.BookingState;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
+import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.BookingService;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,13 @@ public class BookingServiceImpl implements BookingService{
     private final CabRepository cabRepository;
     private final CabAssignmentStrategy strategy;
     private final BookingRepository bookingRepository;
+    private final AnalyticsService analyticsService;
 
-    public BookingServiceImpl(CabRepository cabRepository, CabAssignmentStrategy strategy, BookingRepository bookingRepository) {
+    public BookingServiceImpl(CabRepository cabRepository, CabAssignmentStrategy strategy, BookingRepository bookingRepository, AnalyticsService analyticsService) {
         this.cabRepository = cabRepository;
         this.strategy = strategy;
         this.bookingRepository = bookingRepository;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -40,7 +43,8 @@ public class BookingServiceImpl implements BookingService{
         assignedCab.setCity(null);
         assignedCab.setLastStateChangeTime(now);
         cabRepository.save(assignedCab);
-
+        analyticsService.recordCabStateChange(assignedCab.getCabId(), CabState.ON_TRIP, null, now);
+        analyticsService.recordBookingDemand(sourceCityId, now);
 
         Booking booking = new Booking(assignedCab.getCabId(), sourceCityId, destinationCityId);
         booking.setState(BookingState.ONGOING);
@@ -60,6 +64,7 @@ public class BookingServiceImpl implements BookingService{
         cab.setState(CabState.IDLE);
         cab.setLastStateChangeTime(now);
         cabRepository.save(cab);
+        analyticsService.recordCabStateChange(cab.getCabId(), CabState.IDLE, cab.getCity() != null ? cab.getCity().getCityId() : null, now);
 
         booking.setState(BookingState.COMPLETED);
         bookingRepository.save(booking);

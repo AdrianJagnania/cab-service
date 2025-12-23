@@ -5,6 +5,7 @@ import com.cabservice.cab_service.entity.City;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.CabRepository;
 import com.cabservice.cab_service.repository.CityRepository;
+import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.impl.CabServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class CabServiceImplTest {
 
     @Mock
     private CityRepository cityRepository;
+
+    @Mock
+    private AnalyticsService analyticsService;
 
     @InjectMocks
     private CabServiceImpl cabService;
@@ -59,6 +63,7 @@ class CabServiceImplTest {
         assertThat(cab.getCity()).isEqualTo(city);
         assertThat(cab.getState()).isEqualTo(CabState.IDLE);
 
+        verify(analyticsService).recordCabStateChange(eq(saved.getCabId()), eq(CabState.IDLE), eq(city.getCityId()), any());
     }
 
     @Test
@@ -86,6 +91,7 @@ class CabServiceImplTest {
         assertThat(cab.getLastStateChangeTime()).isNotNull();
         assertThat(cab.getCity()).isNull(); // should be cleared on trip
 
+        verify(analyticsService).recordCabStateChange(eq(1L), eq(CabState.ON_TRIP), isNull(), any());
     }
 
     @Test
@@ -99,6 +105,7 @@ class CabServiceImplTest {
         cabService.updateState(1L, CabState.IDLE);
 
         verify(cabRepository, never()).save(any());
+        verifyNoInteractions(analyticsService);
     }
 
     @Test
@@ -130,4 +137,3 @@ class CabServiceImplTest {
         assertThrows(IllegalStateException.class, () -> cabService.updateLocation(1L, 20L));
     }
 }
-

@@ -7,6 +7,7 @@ import com.cabservice.cab_service.enums.BookingState;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
+import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.impl.BookingServiceImpl;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,9 @@ class BookingServiceImplTest {
 
     @Mock
     private BookingRepository bookingRepository;
+
+    @Mock
+    private AnalyticsService analyticsService;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -78,6 +82,12 @@ class BookingServiceImplTest {
         // Cab should be marked ON_TRIP and saved
         verify(cabRepository).save(idleCab);
         assertThat(idleCab.getState()).isEqualTo(CabState.ON_TRIP);
+
+        // Analytics should be notified
+        verify(analyticsService, times(1))
+                .recordCabStateChange(eq(idleCab.getCabId()), eq(CabState.ON_TRIP), isNull(), any());
+        verify(analyticsService, times(1))
+                .recordBookingDemand(eq(sourceCityId), any());
     }
 
     @Test
@@ -126,6 +136,7 @@ class BookingServiceImplTest {
         // Returned booking reflects completion
         assertThat(result.getState()).isEqualTo(BookingState.COMPLETED);
 
+        // Analytics called for cab becoming IDLE
+        verify(analyticsService).recordCabStateChange(eq(cabId), eq(CabState.IDLE), any(), any());
     }
 }
-

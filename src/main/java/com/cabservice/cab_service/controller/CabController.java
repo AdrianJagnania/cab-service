@@ -15,8 +15,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/cabs")
 public class CabController {
-    @Autowired
-    private CabService cabService;
+    private final CabService cabService;
+
+    public CabController(CabService cabService) {
+        this.cabService = cabService;
+    }
 
 
     @PostMapping
