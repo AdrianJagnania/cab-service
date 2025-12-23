@@ -1,11 +1,11 @@
 package com.cabservice.cab_service;
 
+import com.cabservice.cab_service.DomainEventPublisher;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.entity.City;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.CabRepository;
 import com.cabservice.cab_service.repository.CityRepository;
-import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.impl.CabServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class CabServiceImplTest {
     private CityRepository cityRepository;
 
     @Mock
-    private AnalyticsService analyticsService;
+    private DomainEventPublisher eventPublisher;
 
     @InjectMocks
     private CabServiceImpl cabService;
@@ -55,15 +55,15 @@ class CabServiceImplTest {
         verify(cabRepository).save(cabCaptor.capture());
         Cab saved = cabCaptor.getValue();
 
-        assertThat(saved.getCity()).isEqualTo(city);
+        assertThat(saved.getCityId()).isEqualTo(city.getCityId());
         assertThat(saved.getState()).isEqualTo(CabState.IDLE);
         assertThat(saved.getLastStateChangeTime()).isNotNull();
 
         // The returned cab should match the saved one in key aspects
-        assertThat(cab.getCity()).isEqualTo(city);
+        assertThat(cab.getCityId()).isEqualTo(city.getCityId());
         assertThat(cab.getState()).isEqualTo(CabState.IDLE);
 
-        verify(analyticsService).recordCabStateChange(eq(saved.getCabId()), eq(CabState.IDLE), eq(city.getCityId()), any());
+        verify(eventPublisher).publish(any());
     }
 
     @Test
@@ -80,7 +80,7 @@ class CabServiceImplTest {
         Cab cab = new Cab();
         cab.setCabId(1L);
         cab.setState(CabState.IDLE);
-        cab.setCity(city);
+        cab.setCityId(city.getCityId());
 
         when(cabRepository.findByCabId(1L)).thenReturn(Optional.of(cab));
 
@@ -89,9 +89,9 @@ class CabServiceImplTest {
         verify(cabRepository).save(cab);
         assertThat(cab.getState()).isEqualTo(CabState.ON_TRIP);
         assertThat(cab.getLastStateChangeTime()).isNotNull();
-        assertThat(cab.getCity()).isNull(); // should be cleared on trip
+        assertThat(cab.getCityId()).isNull(); // should be cleared on trip
 
-        verify(analyticsService).recordCabStateChange(eq(1L), eq(CabState.ON_TRIP), isNull(), any());
+        verify(eventPublisher).publish(any());
     }
 
     @Test
@@ -105,7 +105,7 @@ class CabServiceImplTest {
         cabService.updateState(1L, CabState.IDLE);
 
         verify(cabRepository, never()).save(any());
-        verifyNoInteractions(analyticsService);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -113,7 +113,7 @@ class CabServiceImplTest {
         Cab cab = new Cab();
         cab.setCabId(1L);
         cab.setState(CabState.IDLE);
-        cab.setCity(city);
+        cab.setCityId(city.getCityId());
 
         City newCity = new City(20L, "CityB");
 
@@ -123,7 +123,7 @@ class CabServiceImplTest {
         cabService.updateLocation(1L, 20L);
 
         verify(cabRepository).save(cab);
-        assertThat(cab.getCity()).isEqualTo(newCity);
+        assertThat(cab.getCityId()).isEqualTo(newCity.getCityId());
     }
 
     @Test

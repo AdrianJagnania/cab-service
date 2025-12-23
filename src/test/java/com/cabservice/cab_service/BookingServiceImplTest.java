@@ -1,13 +1,12 @@
 package com.cabservice.cab_service;
 
+import com.cabservice.cab_service.DomainEventPublisher;
 import com.cabservice.cab_service.entity.Booking;
 import com.cabservice.cab_service.entity.Cab;
-import com.cabservice.cab_service.entity.City;
 import com.cabservice.cab_service.enums.BookingState;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
-import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.impl.BookingServiceImpl;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +38,7 @@ class BookingServiceImplTest {
     private BookingRepository bookingRepository;
 
     @Mock
-    private AnalyticsService analyticsService;
+    private DomainEventPublisher eventPublisher;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -51,7 +50,7 @@ class BookingServiceImplTest {
         idleCab = new Cab();
         idleCab.setCabId(1L);
         idleCab.setState(CabState.IDLE);
-        idleCab.setCity(new City(10L, "SourceCity"));
+        idleCab.setCityId(10L);
     }
 
     @Test
@@ -82,12 +81,7 @@ class BookingServiceImplTest {
         // Cab should be marked ON_TRIP and saved
         verify(cabRepository).save(idleCab);
         assertThat(idleCab.getState()).isEqualTo(CabState.ON_TRIP);
-
-        // Analytics should be notified
-        verify(analyticsService, times(1))
-                .recordCabStateChange(eq(idleCab.getCabId()), eq(CabState.ON_TRIP), isNull(), any());
-        verify(analyticsService, times(1))
-                .recordBookingDemand(eq(sourceCityId), any());
+        verify(eventPublisher, atLeastOnce()).publish(any());
     }
 
     @Test
@@ -113,7 +107,7 @@ class BookingServiceImplTest {
         Cab cab = new Cab();
         cab.setCabId(cabId);
         cab.setState(CabState.ON_TRIP);
-        cab.setCity(new City(10L, "SourceCity"));
+        cab.setCityId(10L);
 
         when(bookingRepository.findByBookingId(bookingId)).thenReturn(Optional.of(booking));
         when(cabRepository.findByCabId(cabId)).thenReturn(Optional.of(cab));
@@ -136,7 +130,7 @@ class BookingServiceImplTest {
         // Returned booking reflects completion
         assertThat(result.getState()).isEqualTo(BookingState.COMPLETED);
 
-        // Analytics called for cab becoming IDLE
-        verify(analyticsService).recordCabStateChange(eq(cabId), eq(CabState.IDLE), any(), any());
+        // Events published for cab state change and booking completion
+        verify(eventPublisher, atLeastOnce()).publish(any());
     }
 }

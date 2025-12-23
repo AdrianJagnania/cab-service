@@ -36,10 +36,10 @@ public class InMemoryCabRepository implements CabRepository {
     }
 
     @Override
-    public List<Cab> findByStateAndCityId(CabState cabState,Long cityId){
+    public List<Cab> findByStateAndCityId(CabState cabState, Long cityId) {
         List<Cab> result = new ArrayList<>();
-        for(Cab cab : cabStore.values()){
-            if(cabState.equals(cab.getState()) && cab.getCity() != null && cab.getCity().getCityId().equals(cityId)){
+        for (Cab cab : cabStore.values()) {
+            if (cabState.equals(cab.getState()) && cityId != null && cityId.equals(cab.getCityId())) {
                 result.add(cab);
             }
         }

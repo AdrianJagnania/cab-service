@@ -1,5 +1,6 @@
 package com.cabservice.cab_service;
 
+import com.cabservice.cab_service.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.strategy.impl.LongestIdleCabStrategy;
@@ -62,7 +63,6 @@ class LongestIdleCabStrategyTest {
 
     @Test
     void assignCab_emptyListThrows() {
-        assertThrows(RuntimeException.class, () -> strategy.assignCab(Collections.emptyList()));
+        assertThrows(NoCabAvailableException.class, () -> strategy.assignCab(Collections.emptyList()));
     }
 }
-

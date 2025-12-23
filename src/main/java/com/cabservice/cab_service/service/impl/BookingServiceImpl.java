@@ -1,14 +1,18 @@
 package com.cabservice.cab_service.service.impl;
 
+import com.cabservice.cab_service.BookingCompletedEvent;
+import com.cabservice.cab_service.BookingCreatedEvent;
+import com.cabservice.cab_service.CabStateChangedEvent;
+import com.cabservice.cab_service.DomainEventPublisher;
 import com.cabservice.cab_service.entity.Booking;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.enums.BookingState;
 import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
-import com.cabservice.cab_service.service.AnalyticsService;
 import com.cabservice.cab_service.service.BookingService;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,13 +25,16 @@ public class BookingServiceImpl implements BookingService{
     private final CabRepository cabRepository;
     private final CabAssignmentStrategy strategy;
     private final BookingRepository bookingRepository;
-    private final AnalyticsService analyticsService;
+    private final DomainEventPublisher eventPublisher;
 
-    public BookingServiceImpl(CabRepository cabRepository, CabAssignmentStrategy strategy, BookingRepository bookingRepository, AnalyticsService analyticsService) {
+    public BookingServiceImpl(CabRepository cabRepository,
+                              CabAssignmentStrategy strategy,
+                              BookingRepository bookingRepository,
+                              DomainEventPublisher eventPublisher) {
         this.cabRepository = cabRepository;
         this.strategy = strategy;
         this.bookingRepository = bookingRepository;
-        this.analyticsService = analyticsService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -40,15 +47,26 @@ public class BookingServiceImpl implements BookingService{
 
         Instant now = Instant.now();
         assignedCab.setState(CabState.ON_TRIP);
-        assignedCab.setCity(null);
+        assignedCab.setCityId(null);
         assignedCab.setLastStateChangeTime(now);
         cabRepository.save(assignedCab);
-        analyticsService.recordCabStateChange(assignedCab.getCabId(), CabState.ON_TRIP, null, now);
-        analyticsService.recordBookingDemand(sourceCityId, now);
 
-        Booking booking = new Booking(assignedCab.getCabId(), sourceCityId, destinationCityId);
-        booking.setState(BookingState.ONGOING);
+        eventPublisher.publish(new CabStateChangedEvent(
+                assignedCab.getCabId(),
+                CabState.IDLE,
+                CabState.ON_TRIP,
+                null,
+                now));
+
+        Booking booking = Booking.createOngoing(assignedCab.getCabId(), sourceCityId, destinationCityId);
         bookingRepository.save(booking);
+
+        eventPublisher.publish(new BookingCreatedEvent(
+                booking.getBookingId(),
+                booking.getCabId(),
+                booking.getSourceCityId(),
+                booking.getDestinationCityId(),
+                now));
         return booking;
     }
 
@@ -64,10 +82,24 @@ public class BookingServiceImpl implements BookingService{
         cab.setState(CabState.IDLE);
         cab.setLastStateChangeTime(now);
         cabRepository.save(cab);
-        analyticsService.recordCabStateChange(cab.getCabId(), CabState.IDLE, cab.getCity() != null ? cab.getCity().getCityId() : null, now);
+
+        eventPublisher.publish(new CabStateChangedEvent(
+                cab.getCabId(),
+                CabState.ON_TRIP,
+                CabState.IDLE,
+                cab.getCityId(),
+                now));
 
         booking.setState(BookingState.COMPLETED);
         bookingRepository.save(booking);
+
+        eventPublisher.publish(new BookingCompletedEvent(
+                booking.getBookingId(),
+                booking.getCabId(),
+                booking.getSourceCityId(),
+                booking.getDestinationCityId(),
+                now));
+
         return booking;
     }
 
