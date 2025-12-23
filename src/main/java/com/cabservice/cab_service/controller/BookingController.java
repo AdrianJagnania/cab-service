@@ -22,9 +22,15 @@ public class BookingController {
         return ResponseEntity.ok("Cab booked successfully");
     }
 
-    @PostMapping("/{bookingId}/complete")
-    public ResponseEntity<String> completeTrip(@PathVariable Long bookingId) {
+    @PostMapping("/complete")
+    public ResponseEntity<String> completeTrip(@RequestParam Long bookingId) {
         bookingService.completeTrip(bookingId);
         return ResponseEntity.ok("Trip completed and cab is now IDLE");
+    }
+
+    @PostMapping("/startTrip")
+    public ResponseEntity<Booking> startTrip(@RequestParam Long bookingId) {
+        Booking booking = bookingService.startTrip(bookingId);
+        return ResponseEntity.ok(booking);
     }
 }
