@@ -11,8 +11,8 @@ import com.cabservice.cab_service.enums.CabState;
 import com.cabservice.cab_service.repository.BookingRepository;
 import com.cabservice.cab_service.repository.CabRepository;
 import com.cabservice.cab_service.service.BookingService;
+import com.cabservice.cab_service.service.CabService;
 import com.cabservice.cab_service.strategy.CabAssignmentStrategy;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -26,15 +26,17 @@ public class BookingServiceImpl implements BookingService{
     private final CabAssignmentStrategy strategy;
     private final BookingRepository bookingRepository;
     private final DomainEventPublisher eventPublisher;
+    private final CabService cabService;
 
     public BookingServiceImpl(CabRepository cabRepository,
                               CabAssignmentStrategy strategy,
                               BookingRepository bookingRepository,
-                              DomainEventPublisher eventPublisher) {
+                              DomainEventPublisher eventPublisher, CabService cabService) {
         this.cabRepository = cabRepository;
         this.strategy = strategy;
         this.bookingRepository = bookingRepository;
         this.eventPublisher = eventPublisher;
+        this.cabService = cabService;
     }
 
     @Override
@@ -102,5 +104,17 @@ public class BookingServiceImpl implements BookingService{
 
         return booking;
     }
+
+    @Override
+    public Booking startTrip(Long bookingId){
+        Booking booking = bookingRepository.findByBookingId(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        cabService.updateState(booking.getCabId(), CabState.ON_TRIP);
+        booking.setState(BookingState.ONGOING);
+        bookingRepository.save(booking);
+        return booking;
+    }
+
 
 }
