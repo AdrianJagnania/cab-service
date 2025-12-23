@@ -1,4 +1,4 @@
-package com.cabservice.cab_service;
+package com.cabservice.cab_service.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

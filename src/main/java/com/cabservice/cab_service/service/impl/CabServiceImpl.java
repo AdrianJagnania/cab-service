@@ -1,7 +1,7 @@
 package com.cabservice.cab_service.service.impl;
 
-import com.cabservice.cab_service.CabStateChangedEvent;
-import com.cabservice.cab_service.DomainEventPublisher;
+import com.cabservice.cab_service.event.CabStateChangedEvent;
+import com.cabservice.cab_service.event.DomainEventPublisher;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.entity.City;
 import com.cabservice.cab_service.enums.CabState;

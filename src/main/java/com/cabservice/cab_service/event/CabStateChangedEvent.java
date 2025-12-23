@@ -1,4 +1,4 @@
-package com.cabservice.cab_service;
+package com.cabservice.cab_service.event;
 
 import com.cabservice.cab_service.enums.CabState;
 import lombok.AllArgsConstructor;

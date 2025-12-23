@@ -1,4 +1,4 @@
-package com.cabservice.cab_service;
+package com.cabservice.cab_service.event;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Dispatches domain events to the appropriate handler based on event name.
- * Handlers register themselves by exposing a supported event name.
- */
+
 @Component
 public class AnalyticsEventListener {
 

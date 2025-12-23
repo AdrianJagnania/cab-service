@@ -1,6 +1,6 @@
 package com.cabservice.cab_service;
 
-import com.cabservice.cab_service.NoCabAvailableException;
+import com.cabservice.cab_service.event.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.strategy.impl.CompositeCabAssignmentStrategy;
 import org.junit.jupiter.api.Test;
