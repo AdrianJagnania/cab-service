@@ -9,17 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 public class InMemoryBookingRepository implements BookingRepository {
     private final Map<Long, Booking> bookings = new ConcurrentHashMap<>();
+    private final AtomicLong idSequence = new AtomicLong(1);
+
     @Override
     public void save(Booking booking) {
-        if(booking.getBookingId() == null) {
-            Long newId = (long) bookings.size() + 1;
-            booking.setBookingId(newId);
+        if (booking.getBookingId() == null) {
+            booking.setBookingId(idSequence.getAndIncrement());
         }
-        bookings.put(booking.getBookingId(),booking);
+        bookings.put(booking.getBookingId(), booking);
     }
 
     @Override

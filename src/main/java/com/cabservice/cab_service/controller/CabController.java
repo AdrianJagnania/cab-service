@@ -21,7 +21,7 @@ public class CabController {
 
     @PostMapping
     public ResponseEntity<String> registerCab(@RequestBody CreateCabRequestDTO request) {
-        cabService.registerCab(request.getCabId(), request.getCityId());
+        cabService.registerCab(request.getCityId());
         return ResponseEntity.ok("Cab registered successfully");
     }
 

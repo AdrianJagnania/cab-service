@@ -9,18 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 public class InMemoryCityRepository implements CityRepository {
     private final Map<Long, City> cityStore = new ConcurrentHashMap<>();
+    private final AtomicLong idSequence = new AtomicLong(1);
 
     @Override
     public void save(City city) {
-        if(city.getCityId() == null) {
-            Long newId = (long) cityStore.size() + 1;
-            city.setCityId(newId);
+        if (city.getCityId() == null) {
+            city.setCityId(idSequence.getAndIncrement());
         }
-        cityStore.put(city.getCityId(),city);
+        cityStore.put(city.getCityId(), city);
     }
 
     @Override
