@@ -1,11 +1,9 @@
 package com.cabservice.cab_service.controller;
 
-import com.cabservice.cab_service.dto.CreateCabRequestDTO;
 import com.cabservice.cab_service.dto.UpdateCabLocationRequestDTO;
 import com.cabservice.cab_service.dto.UpdateCabStateRequestDTO;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.service.CabService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,27 +20,24 @@ public class CabController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<String> registerCab(@RequestBody CreateCabRequestDTO request) {
-        cabService.registerCab(request.getCityId());
+    @PostMapping("/registerCab")
+    public ResponseEntity<String> registerCab(@RequestParam Long cityId) {
+        cabService.registerCab(cityId);
         return ResponseEntity.ok("Cab registered successfully");
     }
 
-    @PutMapping("/{id}/state")
+    @PutMapping("/updateState")
     public ResponseEntity<String> updateCabState(
-            @PathVariable Long id,
             @RequestBody UpdateCabStateRequestDTO request) {
-
-        cabService.updateState(id, request.getState());
+        cabService.updateState(request.getCabId(), request.getState());
         return ResponseEntity.ok("Cab state updated successfully");
     }
 
-    @PutMapping("/{id}/location")
+    @PutMapping("/updateLocation")
     public ResponseEntity<String> updateCabLocation(
-            @PathVariable Long id,
             @RequestBody UpdateCabLocationRequestDTO request) {
 
-        cabService.updateLocation(id, request.getCityId());
+        cabService.updateLocation(request.getCabId(), request.getCityId());
         return ResponseEntity.ok("Cab location updated successfully");
     }
 

@@ -2,15 +2,12 @@ package com.cabservice.cab_service.strategy.impl;
 
 import com.cabservice.cab_service.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Cab;
+import com.cabservice.cab_service.strategy.CabSelectionStep;
 
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Selects the set of cabs with the oldest lastStateChangeTime (longest idle).
- * - If only one matches, returns it.
- * - If multiple tie, delegates to the next step with only the tied cabs.
- */
+
 public class OldestIdleSelectionStep extends AbstractCabSelectionStep {
 
     public OldestIdleSelectionStep(CabSelectionStep next) {

@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class UpdateCabStateRequestDTO {
+    private Long CabId;
     private CabState state;
 }

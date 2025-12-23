@@ -1,9 +1,7 @@
 package com.cabservice.cab_service;
 
-import com.cabservice.cab_service.NoCabAvailableException;
 import com.cabservice.cab_service.entity.Cab;
 import com.cabservice.cab_service.enums.CabState;
-import com.cabservice.cab_service.strategy.impl.LongestIdleCabStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

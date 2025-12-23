@@ -11,7 +11,7 @@ public class Booking {
     private Long destinationCityId;
     private BookingState state;
 
-    private Booking(Long cabId, Long sourceCityId, Long destinationCityId, BookingState state) {
+    public Booking(Long cabId, Long sourceCityId, Long destinationCityId, BookingState state) {
         this.cabId = cabId;
         this.sourceCityId = sourceCityId;
         this.destinationCityId = destinationCityId;

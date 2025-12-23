@@ -1,6 +1,5 @@
 package com.cabservice.cab_service.controller;
 
-import com.cabservice.cab_service.dto.CreateCityRequestDTO;
 import com.cabservice.cab_service.entity.City;
 import com.cabservice.cab_service.service.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +15,21 @@ public class CityController {
     @Autowired
     private CityService cityService;
 
-    // POST /cities → Create a city
     @PostMapping("/create")
-    public ResponseEntity<String> createCity(@RequestBody CreateCityRequestDTO request) {
-        cityService.createCity(request.getName());
+    public ResponseEntity<String> createCity(@RequestParam String cityName) {
+        cityService.createCity(cityName);
         return ResponseEntity.ok("City created successfully");
     }
 
-    // GET /cities → List all cities
-    @GetMapping
+    @GetMapping("/getAllCities")
     public ResponseEntity<List<City>> getAllCities() {
         List<City> cities = cityService.getAllCities();
         return ResponseEntity.ok(cities);
     }
 
-    // GET /cities/{id} → Get city by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<City> getCityById(@PathVariable Long id) {
-        City city = cityService.getCity(id);
+    @GetMapping("/getCity")
+    public ResponseEntity<City> getCityById(@RequestParam Long cityId) {
+        City city = cityService.getCity(cityId);
         return ResponseEntity.ok(city);
     }
 }

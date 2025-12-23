@@ -16,13 +16,13 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping
+    @PostMapping("/bookCab")
     public ResponseEntity<String> bookCab(@RequestBody CreateBookingRequestDTO request) {
         bookingService.bookCab(request.getSourceCityId(), request.getDestinationCityId());
         return ResponseEntity.ok("Cab booked successfully");
     }
 
-    @PostMapping("/complete")
+    @PostMapping("/completeTrip")
     public ResponseEntity<String> completeTrip(@RequestParam Long bookingId) {
         bookingService.completeTrip(bookingId);
         return ResponseEntity.ok("Trip completed and cab is now IDLE");

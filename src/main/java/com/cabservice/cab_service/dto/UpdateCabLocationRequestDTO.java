@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class UpdateCabLocationRequestDTO {
+    private Long cabId;
     private Long cityId;
 }
